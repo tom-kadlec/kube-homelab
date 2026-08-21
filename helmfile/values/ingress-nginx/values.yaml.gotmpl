@@ -1,0 +1,5 @@
+controller:
+  service:
+    type: {{ .Values.ingress.serviceType | default "LoadBalancer" }}
+  admissionWebhooks:
+    enabled: true

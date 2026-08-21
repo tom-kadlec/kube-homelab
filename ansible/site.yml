@@ -1,0 +1,22 @@
+---
+# Entry playbook: full Ansible path to Ready nodes
+- name: Import prepare
+  ansible.builtin.import_playbook: playbooks/01-prepare.yml
+
+- name: Import containerd
+  ansible.builtin.import_playbook: playbooks/02-containerd.yml
+
+- name: Import kubernetes packages
+  ansible.builtin.import_playbook: playbooks/03-kubernetes.yml
+
+- name: Import init master
+  ansible.builtin.import_playbook: playbooks/04-init-master.yml
+
+- name: Import CNI
+  ansible.builtin.import_playbook: playbooks/05-cni.yml
+
+- name: Import join workers
+  ansible.builtin.import_playbook: playbooks/06-join-workers.yml
+
+- name: Import smoke
+  ansible.builtin.import_playbook: playbooks/07-smoke.yml

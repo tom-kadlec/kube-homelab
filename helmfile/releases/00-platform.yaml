@@ -1,0 +1,42 @@
+templates:
+  platform: &platform
+    namespace: kube-system
+    labels:
+      tier: platform
+    missingFileHandler: Warn
+
+releases:
+  - name: metallb
+    <<: *platform
+    namespace: metallb-system
+    chart: metallb/metallb
+    version: 0.14.9
+    values:
+      - ../values/metallb/values.yaml.gotmpl
+
+  - name: ingress-nginx
+    <<: *platform
+    namespace: ingress-nginx
+    chart: ingress-nginx/ingress-nginx
+    version: 4.12.0
+    needs:
+      - metallb-system/metallb
+    values:
+      - ../values/ingress-nginx/values.yaml.gotmpl
+
+  - name: cert-manager
+    <<: *platform
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.16.2
+    values:
+      - ../values/cert-manager/values.yaml.gotmpl
+
+  - name: longhorn
+    <<: *platform
+    namespace: longhorn-system
+    chart: longhorn/longhorn
+    version: 1.7.2
+    condition: longhorn.enabled
+    values:
+      - ../values/longhorn/values.yaml.gotmpl

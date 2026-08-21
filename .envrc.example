@@ -1,0 +1,3 @@
+# Copy to .envrc and adjust (direnv optional).
+export KUBECONFIG="${PWD}/kubeconfig/admin.conf"
+export ANSIBLE_CONFIG="${PWD}/ansible/ansible.cfg"

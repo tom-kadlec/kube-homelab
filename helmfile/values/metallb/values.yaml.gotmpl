@@ -1,0 +1,7 @@
+# MetalLB chart values — the address pool is usually applied as CRs after install.
+# TODO: add IPAddressPool + L2Advertisement (manifest / extra release / postsync hook).
+speaker:
+  tolerateMaster: false
+controller:
+  image:
+    pullPolicy: IfNotPresent

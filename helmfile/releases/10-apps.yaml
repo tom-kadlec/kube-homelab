@@ -1,0 +1,14 @@
+# Application releases — add charts here.
+# Labels tier=apps are used for: helmfile -l tier=apps apply
+#
+# Example:
+# releases:
+#   - name: whoami
+#     namespace: apps
+#     chart: oci://ghcr.io/example/whoami
+#     labels:
+#       tier: apps
+#     values:
+#       - ../values/apps/whoami.yaml.gotmpl
+
+releases: []

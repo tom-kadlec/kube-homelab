@@ -1,0 +1,3 @@
+---
+# Placeholder defaults for each role — extend when implementing
+containerd_version: ""

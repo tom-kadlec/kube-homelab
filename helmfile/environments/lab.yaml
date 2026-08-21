@@ -1,0 +1,17 @@
+# Lab environment defaults (consumed by releases via {{ .Values }})
+clusterName: kube-homelab
+domain: lab.home.arpa
+
+metallb:
+  # Adjust to a free range on your LAN
+  addressPool: "192.168.1.200-192.168.1.220"
+
+ingress:
+  # Use LoadBalancer once MetalLB is providing IPs
+  serviceType: LoadBalancer
+
+certManager:
+  installCRDs: true
+
+longhorn:
+  enabled: true

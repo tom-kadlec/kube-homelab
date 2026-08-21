@@ -1,0 +1,8 @@
+---
+# TODO: kubeadm init (idempotent check), copy admin.conf, fetch kubeconfig to control machine, create join command
+- name: Stub — kubeadm_master role not fully implemented yet
+  ansible.builtin.debug:
+    msg: >-
+      Run kubeadm init --pod-network-cidr={{ pod_network_cidr }},
+      fetch admin.conf to {{ kubeconfig_local_path }},
+      expose join token for workers (hostvars / shared fact).

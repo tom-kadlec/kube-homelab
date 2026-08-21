@@ -1,0 +1,5 @@
+---
+common_disable_swap: true
+common_modules:
+  - overlay
+  - br_netfilter

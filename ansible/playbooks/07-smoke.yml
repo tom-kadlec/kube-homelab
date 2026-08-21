@@ -1,0 +1,23 @@
+---
+- name: Smoke test — nodes Ready
+  hosts: masters
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait until all nodes are Ready
+      ansible.builtin.command: kubectl get nodes --no-headers
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: nodes_out
+      changed_when: false
+      failed_when: false
+      retries: 30
+      delay: 10
+      until: >
+        nodes_out.rc == 0 and
+        nodes_out.stdout_lines | length > 0 and
+        (nodes_out.stdout_lines | select('search', 'NotReady') | list | length) == 0
+
+    - name: Show nodes
+      ansible.builtin.debug:
+        var: nodes_out.stdout_lines

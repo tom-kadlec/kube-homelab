@@ -1,0 +1,62 @@
+# Example lab values — copy to terraform.tfvars and adjust.
+
+kubeconfig_path = "../kubeconfig/admin.conf"
+
+namespaces = {
+  apps = {
+    labels = {
+      "pod-security.kubernetes.io/enforce" = "baseline"
+    }
+    quota = {
+      requests_cpu    = "4"
+      requests_memory = "8Gi"
+      limits_cpu      = "8"
+      limits_memory   = "16Gi"
+      pods            = "40"
+    }
+    limit_range = {
+      default_cpu            = "200m"
+      default_memory         = "256Mi"
+      default_request_cpu    = "50m"
+      default_request_memory = "64Mi"
+    }
+  }
+  monitoring = {
+    labels = {}
+    quota = {
+      requests_cpu    = "2"
+      requests_memory = "4Gi"
+      limits_cpu      = "4"
+      limits_memory   = "8Gi"
+      pods            = "30"
+    }
+  }
+}
+
+service_accounts = [
+  {
+    name      = "deployer"
+    namespace = "apps"
+    labels = {
+      "app.kubernetes.io/managed-by" = "terraform"
+    }
+  }
+]
+
+role_bindings = [
+  {
+    name      = "deployer-edit"
+    namespace = "apps"
+    role_ref = {
+      kind = "ClusterRole"
+      name = "edit"
+    }
+    subjects = [
+      {
+        kind      = "ServiceAccount"
+        name      = "deployer"
+        namespace = "apps"
+      }
+    ]
+  }
+]

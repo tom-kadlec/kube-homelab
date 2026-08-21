@@ -1,0 +1,6 @@
+---
+- name: Initialize Kubernetes control plane
+  hosts: masters
+  become: true
+  roles:
+    - role: kubeadm_master

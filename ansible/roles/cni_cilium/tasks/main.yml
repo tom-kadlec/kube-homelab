@@ -1,0 +1,7 @@
+---
+# TODO: install Cilium via helm or cilium-cli using pod_network_cidr / cilium_version
+- name: Stub — cni_cilium role not fully implemented yet
+  ansible.builtin.debug:
+    msg: >-
+      Install Cilium {{ cilium_version }} on the control plane
+      (helm repo cilium/cilium or cilium install).

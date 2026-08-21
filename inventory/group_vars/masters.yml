@@ -1,0 +1,4 @@
+---
+# Control-plane specific variables
+kubeadm_init_extra_args: []
+# e.g. controlPlaneEndpoint once you have a VIP / kube-vip

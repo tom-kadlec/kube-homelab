@@ -1,0 +1,6 @@
+---
+- name: Join worker nodes
+  hosts: workers
+  become: true
+  roles:
+    - role: kubeadm_worker

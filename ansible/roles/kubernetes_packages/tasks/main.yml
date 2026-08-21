@@ -1,0 +1,7 @@
+---
+# TODO: add pkgs.k8s.io apt repo, pin kubelet/kubeadm/kubectl to k8s_version, hold packages, enable kubelet
+- name: Stub — kubernetes_packages role not fully implemented yet
+  ansible.builtin.debug:
+    msg: >-
+      Install kubelet={{ k8s_version }}, kubeadm, kubectl from pkgs.k8s.io
+      ({{ k8s_version_short }}). Enable and start kubelet.

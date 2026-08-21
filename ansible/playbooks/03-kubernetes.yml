@@ -1,0 +1,6 @@
+---
+- name: Install kubeadm, kubelet, kubectl
+  hosts: all
+  become: true
+  roles:
+    - role: kubernetes_packages

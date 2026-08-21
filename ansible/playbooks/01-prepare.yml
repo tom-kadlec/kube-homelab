@@ -1,0 +1,6 @@
+---
+- name: Prepare Ubuntu nodes
+  hosts: all
+  become: true
+  roles:
+    - role: common

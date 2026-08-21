@@ -1,0 +1,7 @@
+---
+# TODO: kubeadm join using token/hash from master (delegate_facts / hostvars)
+- name: Stub — kubeadm_worker role not fully implemented yet
+  ansible.builtin.debug:
+    msg: >-
+      Run kubeadm join against masters[0] using token created on master.
+      Skip if already joined (/etc/kubernetes/kubelet.conf exists).

@@ -1,0 +1,2 @@
+---
+# Uses cilium_version, pod_network_cidr from group_vars

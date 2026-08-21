@@ -1,0 +1,7 @@
+---
+# TODO: install containerd, generate default config, enable SystemdCgroup, start service
+- name: Stub — containerd role not fully implemented yet
+  ansible.builtin.debug:
+    msg: >-
+      Implement containerd install + config (SystemdCgroup=true).
+      See docs/bootstrap.md.

@@ -1,0 +1,30 @@
+---
+# Helmfile environments
+environments:
+  lab:
+    values:
+      - environments/lab.yaml
+
+---
+repositories:
+  - name: metallb
+    url: https://metallb.github.io/metallb
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: longhorn
+    url: https://charts.longhorn.io
+
+---
+helmDefaults:
+  wait: true
+  timeout: 600
+  createNamespace: true
+  atomic: false
+
+---
+# Platform releases (MetalLB, Ingress, cert-manager, Longhorn)
+bases:
+  - releases/00-platform.yaml
+  - releases/10-apps.yaml

@@ -1,0 +1,6 @@
+---
+- name: Install CNI (Cilium)
+  hosts: masters
+  become: true
+  roles:
+    - role: cni_cilium

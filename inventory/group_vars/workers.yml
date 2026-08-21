@@ -1,0 +1,3 @@
+---
+# Worker-specific variables
+# (empty for now — ready for taints, labels, …)
