@@ -1,2 +1,8 @@
 ---
-# Uses cilium_version, pod_network_cidr from group_vars
+cilium_namespace: kube-system
+cilium_release_name: cilium
+cilium_helm_repo_name: cilium
+cilium_helm_repo_url: https://helm.cilium.io/
+cilium_helm_chart: cilium/cilium
+# Wait for agent DaemonSet to be ready
+cilium_wait_timeout: 600

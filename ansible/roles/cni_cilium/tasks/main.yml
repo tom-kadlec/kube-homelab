@@ -1,7 +1,74 @@
 ---
-# TODO: install Cilium via helm or cilium-cli using pod_network_cidr / cilium_version
-- name: Stub — cni_cilium role not fully implemented yet
-  ansible.builtin.debug:
-    msg: >-
-      Install Cilium {{ cilium_version }} on the control plane
-      (helm repo cilium/cilium or cilium install).
+- name: Check whether Helm is installed
+  ansible.builtin.command: helm version --short
+  register: helm_version
+  changed_when: false
+  failed_when: false
+
+- name: Install Helm 3
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/helm
+  when: helm_version.rc != 0
+
+- name: Add Cilium Helm repository
+  ansible.builtin.command:
+    argv:
+      - helm
+      - repo
+      - add
+      - "{{ cilium_helm_repo_name }}"
+      - "{{ cilium_helm_repo_url }}"
+      - --force-update
+
+- name: Update Helm repositories
+  ansible.builtin.command:
+    argv:
+      - helm
+      - repo
+      - update
+      - "{{ cilium_helm_repo_name }}"
+
+- name: Install or upgrade Cilium
+  ansible.builtin.command:
+    argv:
+      - helm
+      - upgrade
+      - --install
+      - "{{ cilium_release_name }}"
+      - "{{ cilium_helm_chart }}"
+      - --version
+      - "{{ cilium_version }}"
+      - --namespace
+      - "{{ cilium_namespace }}"
+      - --set
+      - ipam.mode=kubernetes
+      - --set
+      - operator.replicas=1
+      - --wait
+      - --timeout
+      - "{{ cilium_wait_timeout }}s"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: cilium_install
+  changed_when: >-
+    'has been upgraded' in cilium_install.stdout
+    or 'has been installed' in cilium_install.stdout
+
+- name: Wait until Cilium agent pods are Ready
+  ansible.builtin.command:
+    argv:
+      - kubectl
+      - --kubeconfig=/etc/kubernetes/admin.conf
+      - -n
+      - "{{ cilium_namespace }}"
+      - wait
+      - --for=condition=Ready
+      - pod
+      - -l
+      - k8s-app=cilium
+      - --timeout={{ cilium_wait_timeout }}s
+  changed_when: false

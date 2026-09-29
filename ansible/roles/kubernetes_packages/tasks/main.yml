@@ -1,7 +1,60 @@
 ---
-# TODO: add pkgs.k8s.io apt repo, pin kubelet/kubeadm/kubectl to k8s_version, hold packages, enable kubelet
-- name: Stub — kubernetes_packages role not fully implemented yet
-  ansible.builtin.debug:
-    msg: >-
-      Install kubelet={{ k8s_version }}, kubeadm, kubectl from pkgs.k8s.io
-      ({{ k8s_version_short }}). Enable and start kubelet.
+- name: Ensure apt keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Install Kubernetes apt repository signing key
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -fsSL "{{ kubernetes_apt_release_key_url }}" | gpg --dearmor -o "{{ kubernetes_keyring_path }}"
+  args:
+    executable: /bin/bash
+    creates: "{{ kubernetes_keyring_path }}"
+
+- name: Add Kubernetes apt repository
+  ansible.builtin.copy:
+    dest: "{{ kubernetes_list_path }}"
+    mode: "0644"
+    content: |
+      {{ kubernetes_apt_repository }}
+
+- name: Unhold kube packages before install/upgrade
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: install
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+  failed_when: false
+  when: kubernetes_hold_packages | bool
+
+- name: Install kubelet, kubeadm, kubectl
+  ansible.builtin.apt:
+    name:
+      - "kubelet={{ k8s_version }}-*"
+      - "kubeadm={{ k8s_version }}-*"
+      - "kubectl={{ k8s_version }}-*"
+    state: present
+    update_cache: true
+  notify: Restart kubelet
+
+- name: Hold kube packages to prevent accidental upgrades
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+  when: kubernetes_hold_packages | bool
+
+- name: Enable kubelet service
+  ansible.builtin.service:
+    name: kubelet
+    enabled: true
+    # kubelet stays CrashLoop until kubeadm init/join; ignore start failures
+    state: started
+  failed_when: false

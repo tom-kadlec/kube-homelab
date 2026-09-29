@@ -16,6 +16,12 @@ Idempotent bootstrap of a home Kubernetes cluster on Ubuntu VMs (Proxmox) using 
 - SSH access (e.g. user `ubuntu` + key)
 - Locally: `ansible`, `terraform`, `helm`, `helmfile`, `kubectl`
 
+Install Ansible collections once:
+
+```bash
+ansible-galaxy collection install -r ansible/requirements.yml
+```
+
 ## Quick start
 
 1. Edit `inventory/hosts.yml` (IP addresses).
@@ -25,7 +31,8 @@ Idempotent bootstrap of a home Kubernetes cluster on Ubuntu VMs (Proxmox) using 
 
 ```bash
 chmod +x scripts/*.sh
-make bootstrap
+make prepare    # installs containerd + kubeadm/kubelet/kubectl
+make bootstrap  # full stack (or continue with cluster / platform / apps)
 # or: ./scripts/bootstrap.sh
 ```
 

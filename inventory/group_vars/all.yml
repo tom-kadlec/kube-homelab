@@ -7,12 +7,17 @@ k8s_version: "1.35.6"
 k8s_version_short: "v1.35"
 pod_network_cidr: "10.244.0.0/16"
 
+# kubeadm preflight: official minimum is 2 vCPUs on control-plane nodes.
+# Prefer increasing vCPUs in Proxmox; use NumCPU here only for undersized lab VMs.
+kubeadm_ignore_preflight_errors:
+  - NumCPU
+
 # containerd
 containerd_config_path: /etc/containerd/config.toml
 
 # Where to store admin kubeconfig on the control machine
-kubeconfig_local_path: "{{ playbook_dir }}/../../kubeconfig/admin.conf"
+kubeconfig_local_path: "{{ inventory_dir }}/../kubeconfig/admin.conf"
 
-# CNI
+# CNI (1.20.x is tested with Kubernetes 1.35)
 cni_provider: cilium
-cilium_version: "1.16.5"
+cilium_version: "1.20.1"

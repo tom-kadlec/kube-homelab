@@ -1,8 +1,72 @@
 ---
-# TODO: kubeadm init (idempotent check), copy admin.conf, fetch kubeconfig to control machine, create join command
-- name: Stub — kubeadm_master role not fully implemented yet
-  ansible.builtin.debug:
-    msg: >-
-      Run kubeadm init --pod-network-cidr={{ pod_network_cidr }},
-      fetch admin.conf to {{ kubeconfig_local_path }},
-      expose join token for workers (hostvars / shared fact).
+- name: Check whether control plane is already initialized
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubeadm_admin_conf
+
+- name: Initialize Kubernetes control plane
+  ansible.builtin.command:
+    cmd: >-
+      kubeadm init
+      --pod-network-cidr={{ pod_network_cidr }}
+      --apiserver-advertise-address={{ kubeadm_apiserver_advertise_address }}
+      {%- if kubeadm_ignore_preflight_errors | length > 0 %}
+      --ignore-preflight-errors={{ kubeadm_ignore_preflight_errors | join(',') }}
+      {%- endif %}
+      {{ kubeadm_init_extra_args | join(' ') }}
+  when: not kubeadm_admin_conf.stat.exists
+  register: kubeadm_init
+  changed_when: kubeadm_init.rc == 0
+
+- name: Ensure kubeconfig directory exists for ansible_user
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+  when: ansible_user != 'root'
+
+- name: Copy admin.conf for ansible_user
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+  when: ansible_user != 'root'
+
+- name: Ensure local kubeconfig directory exists on control machine
+  ansible.builtin.file:
+    path: "{{ kubeconfig_local_path | dirname }}"
+    state: directory
+    mode: "0700"
+  become: false
+  delegate_to: localhost
+
+- name: Fetch admin kubeconfig to control machine
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ kubeconfig_local_path }}"
+    flat: true
+
+- name: Restrict permissions on local kubeconfig
+  ansible.builtin.file:
+    path: "{{ kubeconfig_local_path }}"
+    mode: "0600"
+  become: false
+  delegate_to: localhost
+
+- name: Wait until Kubernetes API is reachable
+  ansible.builtin.command:
+    argv:
+      - kubectl
+      - --kubeconfig=/etc/kubernetes/admin.conf
+      - get
+      - --raw=/healthz
+  register: kube_api_health
+  until: kube_api_health.rc == 0
+  retries: "{{ (kubeadm_api_wait_timeout | int / 5) | int }}"
+  delay: 5
+  changed_when: false

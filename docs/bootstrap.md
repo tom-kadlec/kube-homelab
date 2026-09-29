@@ -22,6 +22,13 @@ ansible -i inventory/hosts.yml all -m ping
 - `terraform/terraform.tfvars` — namespaces, quotas (from the example)
 - `helmfile/values/*` — MetalLB IP pool, Ingress domains, …
 
+### VM sizing
+
+kubeadm expects **at least 2 vCPUs** on control-plane nodes. If your Proxmox VMs have only 1 vCPU, either:
+
+- increase vCPUs on `kube-master` (recommended), or
+- keep `kubeadm_ignore_preflight_errors: [NumCPU]` in `inventory/group_vars/all.yml` (lab-only workaround).
+
 ## 3. Run
 
 Full stack:

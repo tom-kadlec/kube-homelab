@@ -1,2 +1,6 @@
 ---
-# Uses pod_network_cidr from group_vars
+kubeadm_init_extra_args: []
+kubeadm_ignore_preflight_errors: []
+kubeadm_apiserver_advertise_address: "{{ ansible_default_ipv4.address | default(ansible_host) }}"
+# Seconds to wait for the API after init
+kubeadm_api_wait_timeout: 180

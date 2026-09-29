@@ -5,10 +5,12 @@ SHELL := /bin/bash
 ROOT  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 export KUBECONFIG ?= $(ROOT)/kubeconfig/admin.conf
-export ANSIBLE_CONFIG ?= $(ROOT)/ansible/ansible.cfg
+# Force project ansible.cfg (do not inherit ANSIBLE_CONFIG from the shell).
+override export ANSIBLE_CONFIG := $(ROOT)/ansible/ansible.cfg
+export ANSIBLE_ROLES_PATH := $(ROOT)/ansible/roles
 
 INVENTORY ?= $(ROOT)/inventory/hosts.yml
-ANSIBLE   := ansible-playbook -i $(INVENTORY)
+ANSIBLE   := ansible-playbook -i $(INVENTORY) --ask-become-pass
 HELMFILE  := cd $(ROOT)/helmfile && helmfile
 TF_DIR    := $(ROOT)/terraform
 

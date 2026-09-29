@@ -1,7 +1,31 @@
 ---
-# TODO: install containerd, generate default config, enable SystemdCgroup, start service
-- name: Stub — containerd role not fully implemented yet
-  ansible.builtin.debug:
-    msg: >-
-      Implement containerd install + config (SystemdCgroup=true).
-      See docs/bootstrap.md.
+- name: Install containerd
+  ansible.builtin.apt:
+    name: "{{ containerd_package }}"
+    state: present
+    update_cache: true
+
+- name: Ensure containerd config directory exists
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: "0755"
+
+- name: Generate default containerd config
+  ansible.builtin.shell: containerd config default > {{ containerd_config_path }}
+  args:
+    creates: "{{ containerd_config_path }}"
+  notify: Restart containerd
+
+- name: Enable SystemdCgroup for the kubelet cgroup driver
+  ansible.builtin.replace:
+    path: "{{ containerd_config_path }}"
+    regexp: 'SystemdCgroup = false'
+    replace: 'SystemdCgroup = true'
+  notify: Restart containerd
+
+- name: Enable and start containerd
+  ansible.builtin.service:
+    name: containerd
+    state: started
+    enabled: true
